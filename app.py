@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from dotenv import load_dotenv
 from routes.todo import todo
-from pymongo import MongoClient
+from routes.product import product_blueprint
 from config.mongodb import mongo
 
 # Cargamos las variables de entorno
@@ -9,23 +9,21 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# --- CONFIGURACIÓN DE PYMONGO ---
-app.config["MONGO_URI"] = "mongodb+srv://josevargasv_db_user:QAQvbESFsqQAVJt8@cluster0.gksmom6.mongodb.net/ApoloDatabase?retryWrites=true&w=majority&appName=Cluster0"
+# --- CONFIGURACIÓN DE BASE DE DATOS LOCAL ---
+# Usamos localhost para evadir los problemas de certificados SSL/TLS de la red local
+app.config["MONGO_URI"] = "mongodb://localhost:27017/ApoloDatabase"
+
+# Inicializamos la extensión de PyMongo de forma estándar
 mongo.init_app(app)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+# Registro de las rutas de tus módulos (Todos y Productos)
 app.register_blueprint(todo, url_prefix='/todos')
+app.register_blueprint(product_blueprint, url_prefix='/products')
 
 if __name__ == '__main__':
-    try:
-        check_client = MongoClient(app.config["MONGO_URI"])
-        check_client.admin.command('ping')
-        print("¡Conexión exitosa a MongoDB Atlas!")
-        check_client.close()  
-    except Exception as e:
-        print("Error al conectar a MongoDB:", e)
-
+    print("¡Servidor Flask Iniciado Correctamente en Modo Local!")
     app.run(debug=True, use_reloader=False)

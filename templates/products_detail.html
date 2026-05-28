@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} - electronicadb</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-bottom: 60px;
+        }
+        .navbar-brand-custom {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 24px;
+            text-decoration: none;
+        }
+        .detail-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-top: 40px;
+        }
+        .product-image {
+            max-height: 450px;
+            object-fit: cover;
+            width: 100%;
+            border-radius: 8px;
+        }
+        .price-tag {
+            font-size: 32px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .badge-category {
+            background-color: #6c757d;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container">
+            <a class="navbar-brand-custom" href="/">electronicadb</a>
+            <a href="/products" class="btn btn-outline-primary btn-sm">← Volver al Catálogo</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-md-12">
+                
+                <div class="row detail-container">
+                    
+                    <div class="col-md-6 mb-4 mb-md-0 d-flex align-items-center">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="product-image shadow-sm" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="https://placehold.co/600x450/e9ecef/495057?text=Sin+Foto+Disponible" class="product-image shadow-sm" alt="Sin foto">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 d-flex flex-column justify-content-center ps-md-4">
+                        
+                        <div>
+                            <span class="badge badge-category mb-2">{{ product.category if product.category else 'General' }}</span>
+                        </div>
+                        
+                        <h1 class="display-6 fw-bold text-dark mb-2">{{ product.name }}</h1>
+                        
+                        <div class="price-tag">${{ "{:,.2f}".format(product.price) }}</div>
+                        
+                        <hr>
+
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-secondary">Descripción del Producto</h5>
+                            <p class="text-muted" style="white-space: pre-line;">
+                                {{ product.description if product.description else 'Este producto no cuenta con una descripción detallada todavía.' }}
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <span class="fw-bold text-dark">Disponibilidad:</span> 
+                            {% if product.stock > 0 %}
+                                <span class="text-success fw-bold">En Stock ({{ product.stock }} unidades disponibles)</span>
+                            {% else %}
+                                <span class="text-danger fw-bold">Agotado Temporalmente</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="p-2 bg-light rounded text-muted" style="font-size: 12px; font-family: monospace;">
+                            <strong>ID Sistema:</strong> {{ product._id }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-3 text-muted border-top bg-white fixed-bottom" style="font-size: 12px;">
+        &copy; 2026 electronicadb - Panel de Control Interno.
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

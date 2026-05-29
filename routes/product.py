@@ -9,9 +9,13 @@ from services.product import (
 product_blueprint = Blueprint('product', __name__)
 
 # 1. PANEL PRINCIPAL
-@product_blueprint.route('/', methods=['GET'])
+@product_blueprint.route('/products', methods=['GET'])
 def list_products():
+    # Llamamos al servicio que ya tiene la lógica de búsqueda y filtros dinámicos
+    from services.product import get_products_list_service
     products = get_products_list_service()
+    
+    # Enviamos los productos filtrados a tu plantilla HTML
     return render_template('products_list.html', products=products)
 
 # 2. HU-01: Formulario para añadir nuevos productos

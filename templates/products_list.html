@@ -5,6 +5,9 @@
     <title>electronicadb - Catálogo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
         .top-navbar { background-color: #ffffff; border-bottom: 1px solid #e5e7eb; }
@@ -18,7 +21,7 @@
         .banner-computo { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
         .banner-celulares { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
         
-        .promo-banner { border-radius: 12px; color: white; padding: 40px 50px; margin-bottom: 40px; }
+        .promo-banner { border-radius: 12px; color: white; padding: 40px 50px; margin-bottom: 30px; }
         .product-card { background: #ffffff; border: 1px solid #eaf0f6; border-radius: 10px; transition: transform 0.2s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .img-container { height: 220px; padding: 20px; display: flex; align-items: center; justify-content: center; background: #fff; border-bottom: 1px solid #f4f6f9; }
@@ -27,6 +30,9 @@
         .product-title { font-size: 16px; font-weight: 600; color: #1a202c; min-height: 44px; }
         .product-desc { font-size: 13px; color: #65676b; min-height: 38px; margin-bottom: 15px; }
         .product-price { font-size: 22px; font-weight: 800; color: #dc3545; }
+
+        /* Estilo personalizado para la sección de filtrado avanzado */
+        .filter-card { background-color: #ffffff; border: 1px solid #eaf0f6; border-radius: 12px; }
     </style>
 </head>
 <body>
@@ -43,7 +49,7 @@
     <div class="category-bar border-bottom">
         <div class="container">
             <div class="d-flex justify-content-start">
-                <a href="/products" class="category-link {% if categoria_actual == 'todos' %}active{% endif %}">Todos los Productos</a>
+                <a href="/products" class="category-link {% if categoria_actual == 'todos' or not categoria_actual %}active{% endif %}">Todos los Productos</a>
                 <a href="/category/electrodomesticos" class="category-link {% if categoria_actual == 'electrodomesticos' %}active{% endif %}">Electrodomésticos</a>
                 <a href="/category/computo" class="category-link {% if categoria_actual == 'computo' %}active{% endif %}">Cómputo</a>
                 <a href="/category/celulares" class="category-link {% if categoria_actual == 'celulares' %}active{% endif %}">Celulares</a>
@@ -53,7 +59,46 @@
 
     <main class="container my-4">
         
-        {% if categoria_actual == 'todos' %}
+        <div class="card filter-card mb-4 shadow-sm">
+            <div class="card-body p-4">
+                <form method="GET" action="/products" class="row g-3">
+                    
+                    <div class="col-md-5">
+                        <label for="search" class="form-label fw-bold text-secondary text-sm" style="font-size: 13px;">🔍 BUSCAR PRODUCTO</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control px-3" id="search" name="search" 
+                                   placeholder="Ej. Refrigerador, Asus, iPhone..." value="{{ request.args.get('search', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="precio_min" class="form-label fw-bold text-secondary" style="font-size: 13px;">MIN ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="precio_min" name="precio_min" 
+                               placeholder="Min" value="{{ request.args.get('precio_min', '') }}">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="precio_max" class="form-label fw-bold text-secondary" style="font-size: 13px;">MAX ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="precio_max" name="precio_max" 
+                               placeholder="Max" value="{{ request.args.get('precio_max', '') }}">
+                    </div>
+
+                    {% if categoria_actual and categoria_actual != 'todos' %}
+                        <input type="hidden" name="category" value="{{ categoria_actual }}">
+                    {% endif %}
+
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-danger w-100 fw-bold shadow-sm">Buscar</button>
+                        <a href="/products" class="btn btn-outline-secondary px-3" title="Limpiar Búsqueda">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        {% if categoria_actual == 'todos' or not categoria_actual %}
             <div class="promo-banner banner-todos"><h2>Vitrina Completa</h2><p>Explora todo nuestro inventario tecnológico disponible en tiempo real.</p></div>
         {% elif categoria_actual == 'electrodomesticos' %}
             <div class="promo-banner banner-electro"><h2>Sección Electrodomésticos</h2><p>Línea blanca, electrodomésticos de cocina y equipamiento hogareño.</p></div>
@@ -84,9 +129,13 @@
                         <div class="row g-2 pt-2 border-top mt-auto">
                             <div class="col-6"><a href="/products/{{ product._id }}" class="btn btn-light w-100 py-2 btn-sm text-center fw-bold">Ver Detalle</a></div>
                             <div class="col-6"><a href="/products/{{ product._id }}/edit" class="btn btn-outline-secondary w-100 py-2 btn-sm text-center fw-bold">Editar</a></div>
+                            
                             <div class="col-12 mt-2">
-                                <form action="/products/{{ product._id }}/delete" method="POST" onsubmit="return confirm('¿Eliminar producto?');">
-                                    <button type="submit" class="btn btn-outline-danger w-100 py-1.5 btn-sm fw-bold"><i class="bi bi-trash me-1"></i> Eliminar</button>
+                                <form id="delete-form-{{ product._id }}" action="/products/{{ product._id }}/delete" method="POST">
+                                    <button type="button" class="btn btn-outline-danger w-100 py-1.5 btn-sm fw-bold" 
+                                            onclick="confirmarBorrado('{{ product._id }}', '{{ product.name }}')">
+                                        <i class="bi bi-trash me-1"></i> Eliminar
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -101,5 +150,30 @@
         </div>
         {% endif %}
     </main>
+
+    <script>
+        function confirmarBorrado(productId, productName) {
+            Swal.fire({
+                title: '¿Eliminar producto?',
+                text: `El producto "${productName}" se borrará permanentemente del sistema.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545', // Color rojo idéntico al de tu navbar/botones
+                cancelButtonColor: '#6c757d',  // Gris de Bootstrap para cancelar
+                confirmButtonText: 'Eliminar',
+                cancelButtonText: 'Cancelar',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'rounded-3 shadow-lg border-0',
+                    title: 'fw-bold text-dark'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Si el usuario acepta, envía el formulario exacto del producto seleccionado
+                    document.getElementById(`delete-form-${productId}`).submit();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

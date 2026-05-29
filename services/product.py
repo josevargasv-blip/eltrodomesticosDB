@@ -49,14 +49,14 @@ def get_products_service():
         return Response(result, mimetype='application/json')
 
 def get_product_by_id_service(id):
-    with current_app.app_context(): [cite: 196]
-    try:
-        # Buscamos el producto por su ObjectId en la colección products
-        product = mongo.db.products.find_one({'_id': ObjectId(id)})
-        return product
-    except Exception as e:
-        print(f"Error al buscar el producto: {e}")
-        return None
+    with current_app.app_context():
+        try:
+            # CORREGIDO: Todo el bloque try/except ahora tiene los 4 espacios de indentación obligatorios hacia la derecha
+            product = mongo.db.products.find_one({'_id': ObjectId(id)})
+            return product
+        except Exception as e:
+            print(f"Error al buscar el producto: {e}")
+            return None
 
 # Añade esto en services/product.py para uso de las vistas HTML
 def get_products_list_service():

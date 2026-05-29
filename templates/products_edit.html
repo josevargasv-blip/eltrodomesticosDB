@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Producto - {{ product.name }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/modern/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #121212;
@@ -37,7 +37,7 @@
     <div class="form-container p-4 shadow">
         <h2 class="text-white mb-4 text-center">Editar Producto</h2>
 
-        <form action="/products/{{ product._id }}/edit" method="POST">
+        <form action="/products/{{ product._id }}/edit" method="POST" enctype="multipart/form-data">
 
             <div class="mb-3">
                 <label for="name" class="form-label">Nombre del Producto</label>
@@ -45,8 +45,12 @@
             </div>
 
             <div class="mb-3">
-                <label for="description" class="form-label">Descripción</label>
-                <textarea class="form-control" id="description" name="description" rows="3">{{ product.description }}</textarea>
+                <label for="category" class="form-label">Categoría</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="Electrodomésticos" {% if product.category == 'Electrodomésticos' %}selected{% endif %}>Electrodomésticos</option>
+                    <option value="Cómputo" {% if product.category == 'Cómputo' %}selected{% endif %}>Cómputo</option>
+                    <option value="Celulares" {% if product.category == 'Celulares' %}selected{% endif %}>Celulares</option>
+                </select>
             </div>
 
             <div class="row">
@@ -55,25 +59,33 @@
                     <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ product.price }}" required>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="stock" class="form-label">Stock Inicial</label>
+                    <label for="stock" class="form-label">Stock Disponible</label>
                     <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock }}" required>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label for="category" class="form-label">Categoría</label>
-                <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}">
+                <label for="description" class="form-label">Descripción</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{{ product.description }}</textarea>
             </div>
 
-            <div class="mb-3">
-                <label for="image_url" class="form-label">URL de la Imagen</label>
-                <input type="url" class="form-control" id="image_url" name="image_url" value="{{ product.image_url }}">
+            <div class="mb-4">
+                <label for="image_file" class="form-label">Actualizar Imagen del Producto</label>
+                {% if product.image_url %}
+                    <div class="mb-2">
+                        <span class="text-muted d-block small mb-1">Imagen actual:</span>
+                        <img src="{{ product.image_url }}" alt="Actual" style="max-height: 80px; border-radius: 5px;" class="border p-1">
+                    </div>
+                {% endif %}
+                <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+                <div class="form-text text-muted">Deje vacío si no desea cambiar la imagen actual.</div>
             </div>
 
             <div class="d-flex justify-content-between mt-4">
                 <a href="/products/{{ product._id }}" class="btn btn-outline-light">Cancelar</a>
                 <button type="submit" class="btn btn-primary" style="background-color: #3700b3; border: none;">Guardar Cambios</button>
             </div>
+
         </form>
     </div>
 </div>

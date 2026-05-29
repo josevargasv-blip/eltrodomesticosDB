@@ -18,7 +18,7 @@
         .banner-computo { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); }
         .banner-celulares { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
         
-        .promo-banner { border-radius: 12px; color: white; padding: 40px 50px; margin-bottom: 40px; }
+        .promo-banner { border-radius: 12px; color: white; padding: 40px 50px; margin-bottom: 30px; }
         .product-card { background: #ffffff; border: 1px solid #eaf0f6; border-radius: 10px; transition: transform 0.2s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .img-container { height: 220px; padding: 20px; display: flex; align-items: center; justify-content: center; background: #fff; border-bottom: 1px solid #f4f6f9; }
@@ -27,6 +27,9 @@
         .product-title { font-size: 16px; font-weight: 600; color: #1a202c; min-height: 44px; }
         .product-desc { font-size: 13px; color: #65676b; min-height: 38px; margin-bottom: 15px; }
         .product-price { font-size: 22px; font-weight: 800; color: #dc3545; }
+
+        /* Estilo personalizado para la sección de filtrado avanzado */
+        .filter-card { background-color: #ffffff; border: 1px solid #eaf0f6; border-radius: 12px; }
     </style>
 </head>
 <body>
@@ -43,7 +46,7 @@
     <div class="category-bar border-bottom">
         <div class="container">
             <div class="d-flex justify-content-start">
-                <a href="/products" class="category-link {% if categoria_actual == 'todos' %}active{% endif %}">Todos los Productos</a>
+                <a href="/products" class="category-link {% if categoria_actual == 'todos' or not categoria_actual %}active{% endif %}">Todos los Productos</a>
                 <a href="/category/electrodomesticos" class="category-link {% if categoria_actual == 'electrodomesticos' %}active{% endif %}">Electrodomésticos</a>
                 <a href="/category/computo" class="category-link {% if categoria_actual == 'computo' %}active{% endif %}">Cómputo</a>
                 <a href="/category/celulares" class="category-link {% if categoria_actual == 'celulares' %}active{% endif %}">Celulares</a>
@@ -53,7 +56,46 @@
 
     <main class="container my-4">
         
-        {% if categoria_actual == 'todos' %}
+        <div class="card filter-card mb-4 shadow-sm">
+            <div class="card-body p-4">
+                <form method="GET" action="/products" class="row g-3">
+                    
+                    <div class="col-md-5">
+                        <label for="search" class="form-label fw-bold text-secondary text-sm" style="font-size: 13px;">🔍 BUSCAR PRODUCTO</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control px-3" id="search" name="search" 
+                                   placeholder="Ej. Refrigerador, Asus, iPhone..." value="{{ request.args.get('search', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="precio_min" class="form-label fw-bold text-secondary" style="font-size: 13px;">MIN ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="precio_min" name="precio_min" 
+                               placeholder="Min" value="{{ request.args.get('precio_min', '') }}">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="precio_max" class="form-label fw-bold text-secondary" style="font-size: 13px;">MAX ($)</label>
+                        <input type="number" step="0.01" class="form-control" id="precio_max" name="precio_max" 
+                               placeholder="Max" value="{{ request.args.get('precio_max', '') }}">
+                    </div>
+
+                    {% if categoria_actual and categoria_actual != 'todos' %}
+                        <input type="hidden" name="category" value="{{ categoria_actual }}">
+                    {% endif %}
+
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-danger w-100 fw-bold shadow-sm">Buscar</button>
+                        <a href="/products" class="btn btn-outline-secondary px-3" title="Limpiar Búsqueda">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        {% if categoria_actual == 'todos' or not categoria_actual %}
             <div class="promo-banner banner-todos"><h2>Vitrina Completa</h2><p>Explora todo nuestro inventario tecnológico disponible en tiempo real.</p></div>
         {% elif categoria_actual == 'electrodomesticos' %}
             <div class="promo-banner banner-electro"><h2>Sección Electrodomésticos</h2><p>Línea blanca, electrodomésticos de cocina y equipamiento hogareño.</p></div>

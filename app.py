@@ -17,7 +17,7 @@ if not path.exists(UPLOAD_FOLDER):
     makedirs(UPLOAD_FOLDER)
 
 # Conexión a MongoDB
-app.config["MONGO_URI"] = "mongodb://localhost:27017/electronicadb"
+app.config["MONGO_URI"] = "mongodb://127.0.0.1:27017/electronicadb"
 mongo = PyMongo(app)
 
 # ==========================================

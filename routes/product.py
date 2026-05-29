@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request
 from services.product import (
     create_product_service,
     get_products_list_service,
@@ -8,15 +8,17 @@ from services.product import (
 
 product_blueprint = Blueprint('product', __name__)
 
-# 1. PANEL PRINCIPAL
+# 1. PANEL PRINCIPAL: listado + filtros + búsqueda
 @product_blueprint.route('/products', methods=['GET'])
 def list_products():
-    # Llamamos al servicio que ya tiene la lógica de búsqueda y filtros dinámicos
-    from services.product import get_products_list_service
     products = get_products_list_service()
-    
-    # Enviamos los productos filtrados a tu plantilla HTML
-    return render_template('products_list.html', products=products)
+
+    return render_template(
+        'products_list.html',
+        products=products,
+        search=request.args.get('search', ''),
+        category=request.args.get('category', ''),
+    )
 
 # 2. HU-01: Formulario para añadir nuevos productos
 @product_blueprint.route('/create', methods=['GET'])
@@ -32,16 +34,20 @@ def save_product():
 @product_blueprint.route('/<id>', methods=['GET'])
 def product_detail_view(id):
     product = get_product_by_id_service(id)
+
     if product:
         return render_template('product_detail.html', product=product)
+
     return "Producto no encontrado", 404
 
 # 5. HU-04: Formulario de edición con datos cargados
 @product_blueprint.route('/<id>/edit', methods=['GET'])
 def edit_product_view(id):
     product = get_product_by_id_service(id)
+
     if product:
         return render_template('products_edit.html', product=product)
+
     return "Producto no encontrado", 404
 
 # 6. HU-04: Guarda los cambios del formulario

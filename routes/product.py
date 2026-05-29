@@ -1,48 +1,46 @@
-from flask import Blueprint, render_template
-from services.product import create_product_service, get_products_service
+from flask import Blueprint, render_template, request, redirect
+from services.product import (
+    create_product_service,
+    get_products_list_service,
+    get_product_by_id_service,
+    update_product_service
+)
 
 product_blueprint = Blueprint('product', __name__)
 
-# GET /products/ -> Muestra el inventario en formato JSON
+# 1. PANEL PRINCIPAL
 @product_blueprint.route('/', methods=['GET'])
 def list_products():
-    return get_products_service()
+    products = get_products_list_service()
+    return render_template('products_list.html', products=products)
 
-# GET /products/new -> Abre el hermoso formulario oscuro que armamos
-@product_blueprint.route('/new', methods=['GET'])
-def new_product_view():
+# 2. HU-01: Formulario para añadir nuevos productos
+@product_blueprint.route('/create', methods=['GET'])
+def render_create_form():
     return render_template('products_new.html')
 
-# POST /products/new -> Recibe los datos del formulario y los guarda en MongoDB
+# 3. HU-01: Procesa el formulario de guardado
 @product_blueprint.route('/new', methods=['POST'])
 def save_product():
     return create_product_service()
 
-# GET /products/<id> -> Abre la vista de detalle de un producto específico
+# 4. HU-02: Vista de detalle de un producto específico
 @product_blueprint.route('/<id>', methods=['GET'])
 def product_detail_view(id):
-    from services.product import get_product_by_id_service
-    # Obtenemos el producto desde el servicio
     product = get_product_by_id_service(id)
-
     if product:
         return render_template('product_detail.html', product=product)
-    else:
-        return "Producto no encontrado", 404
+    return "Producto no encontrado", 404
 
-# GET /products/<id>/edit -> Abre el formulario de edición con los datos cargados
+# 5. HU-04: Formulario de edición con datos cargados
 @product_blueprint.route('/<id>/edit', methods=['GET'])
 def edit_product_view(id):
-    from services.product import get_product_by_id_service
-    # Reutilizamos el servicio de la HU-04 para obtener los datos actuales
     product = get_product_by_id_service(id)
     if product:
         return render_template('products_edit.html', product=product)
-    else:
-        return "Producto no encontrado", 404
+    return "Producto no encontrado", 404
 
-# POST /products/<id>/edit -> Procesa los cambios del formulario y actualiza MongoDB
+# 6. HU-04: Procesa los cambios del formulario
 @product_blueprint.route('/<id>/edit', methods=['POST'])
 def update_product(id):
-    from services.product import update_product_service
     return update_product_service(id)

@@ -40,7 +40,7 @@ def edit_product_view(id):
         return render_template('products_edit.html', product=product)
     return "Producto no encontrado", 404
 
-# 6. HU-04: Procesa los cambios del formulario
+# 6. HU-04: Guarda los cambios del formulario
 @product_blueprint.route('/<id>/edit', methods=['POST'])
 def update_product(id):
     return update_product_service(id)
